@@ -1,0 +1,19 @@
+{application, logger,
+ [
+  {description, "logging system"},
+  {vsn, git},
+  {registered, []},
+  {modules, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, {logger, []}},
+  {env, [
+    {default, info},
+    {engine, [
+      {clog, []}
+    ]},
+    {module, []}
+  ]}
+ ]}.
