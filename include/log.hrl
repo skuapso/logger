@@ -74,6 +74,8 @@ testlog () ->
   alert ("test message with param ~w", [1]),
   emerg ("test message"),
   emerg ("test message with param ~w", [1]),
+  warning("unicode test/тест русского"),
+  warning("unicode test: ~s", [<<"тест русского"/utf8>>]),
   ok.
 
 format_msg(Msg, Args, MsgLvl) ->
@@ -84,7 +86,7 @@ format_msg(Msg, Args, MsgLvl) ->
   try
     list_to_binary(
       io_lib:format (
-        "~4.4.0w/~2.2.0w/~2.2.0w ~2.2.0w:~2.2.0w:~2.2.0w ~s ~w ~s ~s: " ++ msg_hr(Msg) ++ "~n",
+        "~4.4.0w/~2.2.0w/~2.2.0w ~2.2.0w:~2.2.0w:~2.2.0w ~s ~w ~s ~s: " ++ hr_msg(Msg) ++ "~n",
         [Y, M, D, H, Mi, S, Node, Pid, Module, logger:level_to_atom(MsgLvl)] ++ hr(Args)))
   catch
     _:_ ->
@@ -94,10 +96,14 @@ format_msg(Msg, Args, MsgLvl) ->
 
 hr(<<>>) ->
   "<<>>";
+hr(<<Bin:2048/binary, Rest/binary>> = Full) when Rest =/= <<>> ->
+  lists:flatten(
+    io_lib:format("<<16#~ts:~w ...>> (~w bytes)",
+                  [hr_binary(Bin), bit_size(Bin), byte_size(Full)]));
 hr(Bin) when is_binary(Bin) ->
   lists:flatten(
-    io_lib:format("<<16#~s:~w>> (~w bytes)",
-                  [misc:binary_to_hex(Bin), bit_size(Bin), byte_size(Bin)]));
+    io_lib:format("<<16#~ts:~w>> (~w bytes)",
+                  [hr_binary(Bin), bit_size(Bin), byte_size(Bin)]));
 hr(T) when is_tuple(T) ->
   list_to_tuple(hr(tuple_to_list(T)));
 hr(L) when is_list(L) ->
@@ -107,5 +113,14 @@ hr(L) when is_list(L) ->
     end, L);
 hr(X) -> X.
 
-msg_hr(M) ->
-  re:replace(M, "~w", "~65535p", [{return, list}]).
+hr_binary(Bin) ->
+  typextfun:to_hex(Bin).
+
+hr_msg(M) -> hr_msg([], M).
+
+hr_msg(Result, [$~, A | Tail]) when A =:= $p; A =:= $w ->
+  hr_msg([$p, $5, $3, $5, $5, $6, $~ | Result], Tail);
+hr_msg(Result, [S | Tail]) ->
+  hr_msg([S | Result], Tail);
+hr_msg(Result, []) ->
+  lists:reverse(Result).
