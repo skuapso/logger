@@ -46,7 +46,7 @@ emerg(Msg, Args) ->
   send_to_log(Msg, Args, emerg).
 
 send_to_log (Msg, Args, MsgLvl) ->
-  {ok, Lvl} = logger:current_level(self(), ?MODULE, node()),
+  {ok, Lvl} = logger:current_level(self(), ?MODULE, <<?MODULE_STRING>>, node()),
   send_to_log(Msg, Args, logger:level_to_integer(MsgLvl), logger:level_to_integer(Lvl)).
 
 send_to_log(_Msg, _Args, MsgLvl, CurLvl) when MsgLvl > CurLvl ->

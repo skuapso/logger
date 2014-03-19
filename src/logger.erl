@@ -7,7 +7,7 @@
 -export([
   level_to_integer/1,
   level_to_atom/1,
-  current_level/3,
+  current_level/4,
   message/1,
   set/2
   ]).
@@ -64,9 +64,27 @@ level_to_atom(1) -> alert;
 level_to_atom(0) -> emerg;
 level_to_atom(L) when is_atom(L) -> L.
 
-current_level(_Pid, Module, _Node) ->
+current_level(_Pid, Module, ModuleBin, _Node) ->
   Lvl = case ets:match(?MODULE, {Module, '$1'}) of
-    [] -> [[Default]] = ets:match(?MODULE, {default, '$1'}), Default;
+    [] ->
+      case ets:select(?MODULE, [{{'$1', '$2'}, [{is_binary,'$1'}], [{{'$1', '$2'}}]}]) of
+        [] ->
+          default();
+        L ->
+          L1 = lists:filtermap(
+                 fun({X, Y}) when is_binary(X) ->
+                      Len = byte_size(X),
+                      case ModuleBin of
+                        <<X:Len/binary, _/binary>> ->
+                          {true, {-byte_size(X), Y}};
+                        _ -> false
+                      end
+                  end, L),
+          case lists:sort(L1) of
+            [] -> default();
+            [{_, PrefixLvl} | _] -> PrefixLvl
+          end
+      end;
     [[ModuleLvl]] -> ModuleLvl
   end,
   {ok, Lvl}.
@@ -86,6 +104,9 @@ set(Module, Lvl) when (is_atom(Module) and is_atom(Lvl)) ->
     [[Lvl]] -> ets:delete(?MODULE, Module);
     [[_Default]] -> ets:insert(?MODULE, {Module, Lvl})
   end,
+  ok;
+set(Prefix, Lvl) when (is_list(Prefix) and is_atom(Lvl)) ->
+  ets:insert(?MODULE, {list_to_binary(Prefix), Lvl}),
   ok.
 %%--------------------------------------------------------------------
 %% @doc
@@ -155,3 +176,6 @@ init(Args) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+default() ->
+  [[Default]] = ets:match(?MODULE, {default, '$1'}),
+  Default.
