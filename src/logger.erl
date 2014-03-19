@@ -38,7 +38,7 @@
 %% Supervisor callbacks
 -export([init/1]).
 
--include_lib("logger/include/log.hrl").
+-include("log.hrl").
 %%%===================================================================
 %%% API functions
 %%%===================================================================
