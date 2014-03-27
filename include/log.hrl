@@ -89,8 +89,13 @@ format_msg(Msg, Args, MsgLvl) ->
         "~4.4.0w/~2.2.0w/~2.2.0w ~2.2.0w:~2.2.0w:~2.2.0w ~s ~w ~s ~s: " ++ hr_msg(Msg) ++ "~n",
         [Y, M, D, H, Mi, S, Node, Pid, Module, logger:level_to_atom(MsgLvl)] ++ hr(Args)))
   catch
-    _:_ ->
-      err("error while creating msg '~w' with args ~w", [Msg, Args]),
+    _:E ->
+      S = erlang:get_stacktrace(),
+      error_logger:error_msg("creating msg: '~65535p'~n"
+                             "with args ~65535p~n"
+                             "Exception: ~65535p~n"
+                             "Stacktrace: ~65535p~n",
+                             [Msg, Args, E, S]),
       <<>>
   end.
 
