@@ -39,11 +39,19 @@ alert(Msg) ->
   alert(Msg, []).
 alert(Msg, Args) ->
   send_to_log(Msg, Args, alert).
+alert(Condition, _Msg, _Args) when not Condition ->
+  ok;
+alert(Condition, Msg, Args) when Condition ->
+  alert(Msg, Args).
 
 emerg(Msg) ->
   emerg(Msg, []).
 emerg(Msg, Args) ->
   send_to_log(Msg, Args, emerg).
+emerg(Condition, _Msg, _Args) when not Condition ->
+  ok;
+emerg(Condition, Msg, Args) when Condition ->
+  emerg(Msg, Args).
 
 send_to_log (Msg, Args, MsgLvl) ->
   {ok, Lvl} = logger:current_level(self(), ?MODULE, <<?MODULE_STRING>>, node()),
@@ -72,8 +80,10 @@ testlog () ->
   crit ("test message with param ~w", [1]),
   alert ("test message"),
   alert ("test message with param ~w", [1]),
+  alert (true, "test message with param ~w", [1]),
   emerg ("test message"),
   emerg ("test message with param ~w", [1]),
+  emerg (true, "test message with param ~w", [1]),
   warning("unicode test/тест русского"),
   warning("unicode test: ~s", [<<"тест русского"/utf8>>]),
   ok.
