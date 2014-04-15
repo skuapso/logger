@@ -129,7 +129,8 @@ hr(L) when is_list(L) ->
 hr(X) -> X.
 
 hr_binary(Bin) ->
-  typextfun:to_hex(Bin).
+  Bin.
+%  typextfun:to_hex(Bin).
 
 hr_msg(M) -> hr_msg([], M).
 
