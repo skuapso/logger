@@ -48,12 +48,23 @@ init([]) ->
 %%                          remove_handler
 %% @end
 %%--------------------------------------------------------------------
+handle_event({error_report, GLeader, {_From, crash_report, [OwnReport, LinkReport]}}, State) ->
+  AppName = application:get_application(GLeader),
+  crash_report(AppName, OwnReport, LinkReport),
+  {ok, State};
 handle_event({error_report, _GLeader, {_From, supervisor_report, Report}}, State) ->
   Sup = proplists:get_value(supervisor, Report),
   Context = proplists:get_value(errorContext, Report),
   Reason = proplists:get_value(reason, Report),
   Offender = proplists:get_value(offender, Report),
   supervisor_report(Context, Sup, Offender, Reason),
+  {ok, State};
+handle_event({info_report, _GLeader, {_From, progress, Report}}, State) ->
+  progress(Report),
+  {ok, State};
+handle_event({info_report, _GLeader,
+              {_From, std_info, [{application, AppName}, {exited, Reason} | _]}}, State) ->
+  application_stop(AppName, Reason),
   {ok, State};
 handle_event(Event, State) ->
   trace("event ~w", [Event]),
@@ -122,6 +133,47 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 supervisor_report(child_terminated, Sup, Offender, Reason) ->
-  warning("~w supervised by ~w abnormal termination: ~w", [Offender, Sup, Reason]).
+  warning("~w supervised by ~w abnormal termination: ~w", [Offender, Sup, Reason]);
+supervisor_report(Context, _, _, _) ->
+  warning("unhandled supervisor report context ~w", [Context]).
+
+crash_report({ok, AppName}, OwnReport, LinkReport) ->
+  crash_report(AppName, OwnReport, LinkReport);
+crash_report(AppName, OwnReport, []) ->
+  {InitModule, InitFun, InitArgs} = proplists:get_value(initial_call, OwnReport),
+  Pid = proplists:get_value(pid, OwnReport),
+  Name = proplists:get_value(registered_name, OwnReport),
+  PIdent = proc_lib_name(Pid, Name),
+  Stacktrace = proplists:get_value(error_info, OwnReport),
+  emerg("application ~w failed start ~w (~w:~w/~w), stacktrace ~w",
+        [AppName, PIdent, InitModule, InitFun, length(InitArgs), Stacktrace]);
+crash_report(AppName, OwnReport, LinkReport) ->
+  crash_report(AppName, OwnReport, []),
+  warning("unhandled link report ~w", [LinkReport]).
+
+proc_lib_name(Pid, Name)
+  when
+    Name =:= undefined;
+    Name =:= []
+    ->
+  Pid;
+proc_lib_name(_Pid, Name) ->
+  Name.
+
+progress([{application, AppName}, {started_at, Node}])
+  when Node =:= node() ->
+  notice("application ~w started", [AppName]);
+progress([{application, AppName}, {started_at, Node}]) ->
+  notice("application ~w started at node ~w", [AppName, Node]);
+progress(Report) ->
+  debug("progress: ~w", [Report]).
+
+application_stop(AppName, Reason)
+  when
+    Reason =:= stopped
+    ->
+  notice("application ~w stopped", [AppName]);
+application_stop(AppName, Reason) ->
+  warning("application ~w stopped with reason ~w", [AppName, Reason]).
 
 %% vim: ft=erlang
