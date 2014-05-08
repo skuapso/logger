@@ -150,6 +150,7 @@ stop(_State) ->
 %% @end
 %%--------------------------------------------------------------------
 init(Args) ->
+  error_logger:add_report_handler(logger_error_handler),
   ets:new(?MODULE, [set, public, named_table]),
   Default = misc:get_env(?MODULE, default, Args),
   set(default, Default),
