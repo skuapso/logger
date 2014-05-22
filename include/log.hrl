@@ -111,10 +111,14 @@ format_msg(Msg, Args, MsgLvl) ->
 
 hr(<<>>) ->
   "<<>>";
-hr(<<Bin:2048/binary, Rest/binary>> = Full) when Rest =/= <<>> ->
+hr(<<Bin:255/binary, Rest/binary>> = Full) when Rest =/= <<>> ->
+  lists:flatten(io_lib:format("~w (2048 of ~w bytes)", [Bin, byte_size(Full)]));
+hr(<<Bin:255/binary, Rest/binary>> = Full) when Rest =/= <<>> ->
   lists:flatten(
     io_lib:format("<<16#~ts:~w ...>> (~w bytes)",
                   [hr_binary(Bin), bit_size(Bin), byte_size(Full)]));
+hr(Bin) when is_binary(Bin) ->
+  lists:flatten(io_lib:format("~w", [Bin]));
 hr(Bin) when is_binary(Bin) ->
   lists:flatten(
     io_lib:format("<<16#~ts:~w>> (~w bytes)",
