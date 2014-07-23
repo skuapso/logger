@@ -89,15 +89,17 @@ testlog () ->
   ok.
 
 format_msg(Msg, Args, MsgLvl) ->
-  {{Y, M, D}, {H, Mi, S}} = erlang:localtime(),
+  {_, _, S1} = Now = os:timestamp(),
+  {{Y, M, D}, {H, Mi, S}} = calendar:now_to_local_time(Now),
+  S2 = round(S1/1000),
   Node = node(),
   Module = ?MODULE,
   Pid = self(),
   try
     list_to_binary(
       io_lib:format (
-        "~4.4.0w/~2.2.0w/~2.2.0w ~2.2.0w:~2.2.0w:~2.2.0w ~s ~w ~s ~s: " ++ hr_msg(Msg) ++ "~n",
-        [Y, M, D, H, Mi, S, Node, Pid, Module, logger:level_to_atom(MsgLvl)] ++ hr(Args)))
+        "~4.4.0w/~2.2.0w/~2.2.0w ~2.2.0w:~2.2.0w:~2.2.0w.~6.6.0w ~s ~w ~s ~s: " ++ hr_msg(Msg) ++ "~n",
+        [Y, M, D, H, Mi, S, S1, Node, Pid, Module, logger:level_to_atom(MsgLvl)] ++ hr(Args)))
   catch
     _:E ->
       S = erlang:get_stacktrace(),
