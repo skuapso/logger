@@ -91,7 +91,6 @@ testlog () ->
 format_msg(Msg, Args, MsgLvl) ->
   {_, _, S1} = Now = os:timestamp(),
   {{Y, M, D}, {H, Mi, S}} = calendar:now_to_local_time(Now),
-  S2 = round(S1/1000),
   Node = node(),
   Module = ?MODULE,
   Pid = self(),
