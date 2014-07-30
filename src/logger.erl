@@ -95,8 +95,11 @@ message(Msg) ->
 set(default, Lvl) when is_atom(Lvl) ->
   ets:insert(?MODULE, {default, Lvl}),
   ok;
-set(Module, default) when is_atom(Module); is_list(Module) ->
+set(Module, default) when is_atom(Module) ->
   ets:delete(?MODULE, Module),
+  ok;
+set(Module, default) when is_list(Module) ->
+  ets:delete(?MODULE, list_to_binary(Module)),
   ok;
 set(Module, Lvl) when (is_atom(Module) and is_atom(Lvl)) ->
   case ets:match(?MODULE, {default, '$1'}) of
