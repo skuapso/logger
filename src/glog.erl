@@ -16,7 +16,7 @@ handle_event (Msg, EvRef) ->
     gen_event:notify (EvRef, Msg)
   catch
     _:_ ->
-      warning ("can't send to ~w", [EvRef]),
+      '_warning' ("can't send to ~w", [EvRef]),
       ok
   end,
   {ok, EvRef}.

@@ -33,21 +33,21 @@ handle_event({message, Msg}, Fd) when is_binary(Msg) ->
   file:write(Fd, Msg),
   {ok, Fd};
 handle_event (Msg, Fd) ->
-  err ("unhandled msg: ~w", [Msg]),
+  '_err' ("unhandled msg: ~w", [Msg]),
   {ok, Fd}.
 
 handle_call (Req, Fd) ->
-  err ("unhandled call: ~w", [Req]),
+  '_err' ("unhandled call: ~w", [Req]),
   {ok, unknown, Fd}.
 
 handle_info (Msg, Fd) ->
-  err ("unhandled info: ~w", [Msg]),
+  '_err' ("unhandled '_info': ~w", [Msg]),
   {ok, Fd}.
 
 terminate(stop, Fd) ->
   file:close(Fd);
 terminate (Reason, Fd) ->
-  Msg = format_msg("terminating with reason ~w", [Reason], emerg),
+  Msg = format_msg("terminating with reason ~w", [Reason], '_emerg'),
   file:write(Fd, Msg),
   spawn(?MODULE, add_handler, [Fd]),
   ok.

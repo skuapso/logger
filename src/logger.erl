@@ -19,19 +19,6 @@
   stop/1
   ]).
 
--export([
-  trace/1, trace/2,
-  debug/1, debug/2,
-  info/1, info/2,
-  notice/1, notice/2,
-  warning/1, warning/2,
-  err/1, err/2,
-  crit/1, crit/2,
-  alert/1, alert/2,
-  emerg/1, emerg/2
-  ]).
-
-
 %% Supervisor API
 -export([start_link/1]).
 
@@ -42,8 +29,8 @@
 %%%===================================================================
 %%% API functions
 %%%===================================================================
-level_to_integer(trace)   -> 8;
-level_to_integer(debug)   -> 7;
+level_to_integer(debug)   -> 8;
+level_to_integer(trace)   -> 7;
 level_to_integer(info)    -> 6;
 level_to_integer(notice)  -> 5;
 level_to_integer(warning) -> 4;
@@ -53,8 +40,8 @@ level_to_integer(alert)   -> 1;
 level_to_integer(emerg)   -> 0;
 level_to_integer(L) when is_integer(L) -> L.
 
-level_to_atom(8) -> trace;
-level_to_atom(7) -> debug;
+level_to_atom(8) -> debug;
+level_to_atom(7) -> trace;
 level_to_atom(6) -> info;
 level_to_atom(5) -> notice;
 level_to_atom(4) -> warning;
@@ -115,7 +102,7 @@ set(Prefix, Lvl) when (is_list(Prefix) and is_atom(Lvl)) ->
 %% @doc
 %% Starts the supervisor
 %%
-%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link() -> {ok, Pid} | ignore | {'_err'or, Error}
 %% @end
 %%--------------------------------------------------------------------
 start() ->
@@ -149,7 +136,7 @@ stop(_State) ->
 %%
 %% @spec init(Args) -> {ok, {SupFlags, [ChildSpec]}} |
 %%                     ignore |
-%%                     {error, Reason}
+%%                     {'_err'or, Reason}
 %% @end
 %%--------------------------------------------------------------------
 init(Args) ->

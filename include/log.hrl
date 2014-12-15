@@ -1,57 +1,67 @@
 -export ([testlog/0]).
 
-trace (Msg) ->
-  trace (Msg, []).
-trace (Msg, Args) ->
-  send_to_log (Msg, Args, trace).
+'_debug' (Msg)                                           -> '_debug' (Msg, []).
+'_debug' (Msg, Args)                                     -> send_to_log (Msg, Args, debug).
+'_debug' (Condition, _Msg, _Args) when not Condition     -> ok;
+'_debug' (Condition, Msg, Args) when Condition           -> '_debug'(Msg, Args).
+'_debug' (Condition, Msg, Args, _Else) when Condition    -> '_debug'(Msg, Args);
+'_debug' (Condition, Msg, Args, Else) when not Condition -> send_to_log (Msg, Args, Else).
 
-debug (Msg) ->
-  debug (Msg, []).
-debug (Msg, Args) ->
-  send_to_log (Msg, Args, debug).
+'_trace' (Msg)                                           -> '_trace' (Msg, []).
+'_trace' (Msg, Args)                                     -> send_to_log (Msg, Args, trace).
+'_trace' (Condition, _Msg, _Args) when not Condition     -> ok;
+'_trace' (Condition, Msg, Args) when Condition           -> '_trace'(Msg, Args).
+'_trace' (Condition, Msg, Args, _Else) when Condition    -> '_trace'(Msg, Args);
+'_trace' (Condition, Msg, Args, Else) when not Condition -> send_to_log (Msg, Args, Else).
 
-info (Msg) ->
-  info (Msg, []).
-info (Msg, Args) ->
-  send_to_log (Msg, Args, info).
+'_info' (Msg)                                            -> '_info' (Msg, []).
+'_info' (Msg, Args)                                      -> send_to_log (Msg, Args, info).
+'_info' (Condition, _Msg, _Args) when not Condition      -> ok;
+'_info' (Condition, Msg, Args) when Condition            -> '_info'(Msg, Args).
+'_info' (Condition, Msg, Args, _Else) when Condition     -> '_info'(Msg, Args);
+'_info' (Condition, Msg, Args, Else) when not Condition  -> send_to_log (Msg, Args, Else).
 
-notice (Msg) ->
-  notice (Msg, []).
-notice (Msg, Args) ->
-  send_to_log (Msg, Args, notice).
+'_notice' (Msg)                                          -> '_notice' (Msg, []).
+'_notice' (Msg, Args)                                    -> send_to_log (Msg, Args, notice).
+'_notice' (Condition, _Msg, _Args) when not Condition    -> ok;
+'_notice' (Condition, Msg, Args) when Condition          -> '_notice'(Msg, Args).
+'_notice' (Condition, Msg, Args, _Else) when Condition   -> '_notice'(Msg, Args);
+'_notice' (Condition, Msg, Args, Else) when not Condition-> send_to_log (Msg, Args, Else).
 
-warning (Msg) ->
-  warning (Msg, []).
-warning (Msg, Args) ->
-  send_to_log (Msg, Args, warning).
+'_warning' (Msg)                                         -> '_warning' (Msg, []).
+'_warning' (Msg, Args)                                   -> send_to_log (Msg, Args, warning).
+'_warning' (Condition, _Msg, _Args) when not Condition   -> ok;
+'_warning' (Condition, Msg, Args) when Condition         -> '_warning'(Msg, Args).
+'_warning' (Condition, Msg, Args, _Else) when Condition  -> '_warning'(Msg, Args);
+'_warning' (Condition, Msg, Args, Else) when not Condition->send_to_log (Msg, Args, Else).
 
-err (Msg) ->
-  err (Msg, []).
-err (Msg, Args) ->
-  send_to_log (Msg, Args, err).
+'_err' (Msg)                                             -> '_err' (Msg, []).
+'_err' (Msg, Args)                                       -> send_to_log (Msg, Args, err).
+'_err' (Condition, _Msg, _Args) when not Condition       -> ok;
+'_err' (Condition, Msg, Args) when Condition             -> '_err'(Msg, Args).
+'_err' (Condition, Msg, Args, _Else) when Condition      -> '_err'(Msg, Args);
+'_err' (Condition, Msg, Args, Else) when not Condition   -> send_to_log (Msg, Args, Else).
 
-crit(Msg) ->
-  crit(Msg, []).
-crit(Msg, Args) ->
-  send_to_log(Msg, Args, crit).
+'_crit' (Msg)                                            -> '_crit' (Msg, []).
+'_crit' (Msg, Args)                                      -> send_to_log (Msg, Args, crit).
+'_crit' (Condition, _Msg, _Args) when not Condition      -> ok;
+'_crit' (Condition, Msg, Args) when Condition            -> '_crit'(Msg, Args).
+'_crit' (Condition, Msg, Args, _Else) when Condition     -> '_crit'(Msg, Args);
+'_crit' (Condition, Msg, Args, Else) when not Condition  -> send_to_log (Msg, Args, Else).
 
-alert(Msg) ->
-  alert(Msg, []).
-alert(Msg, Args) ->
-  send_to_log(Msg, Args, alert).
-alert(Condition, _Msg, _Args) when not Condition ->
-  ok;
-alert(Condition, Msg, Args) when Condition ->
-  alert(Msg, Args).
+'_alert' (Msg)                                           -> '_alert' (Msg, []).
+'_alert' (Msg, Args)                                     -> send_to_log (Msg, Args, alert).
+'_alert' (Condition, _Msg, _Args) when not Condition     -> ok;
+'_alert' (Condition, Msg, Args) when Condition           -> '_alert'(Msg, Args).
+'_alert' (Condition, Msg, Args, _Else) when Condition    -> '_alert'(Msg, Args);
+'_alert' (Condition, Msg, Args, Else) when not Condition -> send_to_log (Msg, Args, Else).
 
-emerg(Msg) ->
-  emerg(Msg, []).
-emerg(Msg, Args) ->
-  send_to_log(Msg, Args, emerg).
-emerg(Condition, _Msg, _Args) when not Condition ->
-  ok;
-emerg(Condition, Msg, Args) when Condition ->
-  emerg(Msg, Args).
+'_emerg' (Msg)                                           -> '_emerg' (Msg, []).
+'_emerg' (Msg, Args)                                     -> send_to_log (Msg, Args, emerg).
+'_emerg' (Condition, _Msg, _Args) when not Condition     -> ok;
+'_emerg' (Condition, Msg, Args) when Condition           -> '_emerg'(Msg, Args).
+'_emerg' (Condition, Msg, Args, _Else) when Condition    -> '_emerg'(Msg, Args);
+'_emerg' (Condition, Msg, Args, Else) when not Condition -> send_to_log (Msg, Args, Else).
 
 send_to_log (Msg, Args, MsgLvl) ->
   {ok, Lvl} = logger:current_level(self(), ?MODULE, <<?MODULE_STRING>>, node()),
@@ -64,28 +74,44 @@ send_to_log(Msg, Args, MsgLvl, _CurLvl) ->
   logger:message(MsgBin).
 
 testlog () ->
-  trace ("test message"),
-  trace ("test message with param ~w", [1]),
-  debug ("test message"),
-  debug ("test message with param ~w", [1]),
-  info ("test message"),
-  info ("test message with param ~w", [1]),
-  notice ("test message"),
-  notice ("test message with param ~w", [1]),
-  warning ("test message"),
-  warning ("test message with param ~w", [1]),
-  err ("test message"),
-  err ("test message with param ~w", [1]),
-  crit ("test message"),
-  crit ("test message with param ~w", [1]),
-  alert ("test message"),
-  alert ("test message with param ~w", [1]),
-  alert (true, "test message with param ~w", [1]),
-  emerg ("test message"),
-  emerg ("test message with param ~w", [1]),
-  emerg (true, "test message with param ~w", [1]),
-  warning("unicode test/тест русского"),
-  warning("unicode test: ~s", [<<"тест русского"/utf8>>]),
+  '_trace' ("test message"),
+  '_trace' ("test message with param ~w", [1]),
+  '_trace' (false, "", []),
+  '_trace' (true, "", [], trace),
+  '_debug' ("test message"),
+  '_debug' ("test message with param ~w", [1]),
+  '_debug' (false, "", []),
+  '_debug' (false, "", [], trace),
+  '_info' ("test message"),
+  '_info' ("test message with param ~w", [1]),
+  '_info' (false, "", []),
+  '_info' (false, "", [], trace),
+  '_notice' ("test message"),
+  '_notice' ("test message with param ~w", [1]),
+  '_notice' (false, "", []),
+  '_notice' (false, "", [], trace),
+  '_warning' ("test message"),
+  '_warning' ("test message with param ~w", [1]),
+  '_warning' (false, "", []),
+  '_warning' (false, "", [], trace),
+  '_err' ("test message"),
+  '_err' ("test message with param ~w", [1]),
+  '_err' (false, "", []),
+  '_err' (false, "", [], trace),
+  '_crit' ("test message"),
+  '_crit' ("test message with param ~w", [1]),
+  '_crit' (false, "", []),
+  '_crit' (false, "", [], trace),
+  '_alert' ("test message"),
+  '_alert' ("test message with param ~w", [1]),
+  '_alert' (true, "test message with param ~w", [1]),
+  '_alert'(false, "", [], trace),
+  '_emerg' ("test message"),
+  '_emerg' ("test message with param ~w", [1]),
+  '_emerg' (true, "test message with param ~w", [1]),
+  '_emerg'(false, "", [], trace),
+  '_warning'("unicode test/тест русского"),
+  '_warning'("unicode test: ~s", [<<"тест русского"/utf8>>]),
   ok.
 
 format_msg(Msg, Args, MsgLvl) ->
